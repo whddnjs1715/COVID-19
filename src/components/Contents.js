@@ -5,15 +5,6 @@ import axios from 'axios'
 
 const Contents = () => {
     const [confirmedData, setConfirmedData] = useState({
-        labels: ["1월", "2월", "3월"],
-        datasets: [
-            {
-                label: "국내 누적 확진자",
-                backgroundColor: "salmon",
-                fill: true,
-                data: [10, 5, 3],
-            }
-        ]
     })
 
     useEffect(() => {
@@ -22,7 +13,49 @@ const Contents = () => {
             makeData(res.data)
         }
         const makeData = (items) => {
-            items.forEach(item => console.log(item))
+            //items.forEach(item => console.log(item))
+            const arr = items.reduce((acc, cur) => {
+                const currentDate = new Date(cur.Date);
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const date = currentDate.getDate();
+                const confirmed = cur.Confirmed;
+                const active = cur.Active;
+                const death = cur.Deaths;
+                const recovered = cur.Recovered;
+
+                //console.log(cur, year, month, date);
+                const findItem = acc.find(a => a.year === year & a.month === month);
+                if(!findItem){
+                    acc.push({year, month, date, confirmed, active, death, recovered})
+                }
+                if(findItem && findItem.date < date){
+                    findItem.active = active;
+                    findItem.death = death;
+                    findItem.date = date;
+                    findItem.year = year;
+                    findItem.month = month;
+                    findItem.recovered = recovered;
+                    findItem.confirmed = confirmed;
+                }
+                return acc;
+            }, [])
+            
+            //console.log(arr)
+
+            const labels = arr.map(a => `${a.month+1}월`);
+            setConfirmedData({
+                labels: labels, // 두개가 같으므로 labels만 적어도 사용가능
+                // 예 labels
+                datasets: [
+                    {
+                        label: "국내 누적 확진자",
+                        backgroundColor: "salmon",
+                        fill: true,
+                        data: arr.map(a => a.confirmed),
+                    }
+                ]
+            })
         }
 
         fetchEvents();
