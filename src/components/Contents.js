@@ -1,11 +1,11 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { Bar } from 'react-chartjs-2'
+import { Bar, Line } from 'react-chartjs-2'
 import axios from 'axios'
 
 const Contents = () => {
-    const [confirmedData, setConfirmedData] = useState({
-    })
+    const [confirmedData, setConfirmedData] = useState({})
+    const [quarantinedData, setquarantinedData] = useState({})
 
     useEffect(() => {
         const fetchEvents = async() => {
@@ -53,9 +53,22 @@ const Contents = () => {
                         backgroundColor: "salmon",
                         fill: true,
                         data: arr.map(a => a.confirmed),
-                    }
+                    },
                 ]
-            })
+            });
+
+            setquarantinedData({
+                labels: labels, // 두개가 같으므로 labels만 적어도 사용가능
+                // 예 labels
+                datasets: [
+                    {
+                        label: "월별 격리자 확진자",
+                        borderColor: "salmon",
+                        fill: false,
+                        data: arr.map(a => a.active),
+                    },
+                ]
+            });
         }
 
         fetchEvents();
@@ -70,6 +83,15 @@ const Contents = () => {
                         data={confirmedData}
                         options={
                             {title:{display: true, text: "누적 확진자 추이", fontSize: 16}},
+                            {legend: {display: false, position: "bottom"}}
+                        }
+                    />
+                </div>
+                <div>
+                    <Line 
+                        data={quarantinedData}
+                        options={
+                            {title:{display: true, text: "월별 격리자 현황 추이", fontSize: 16}},
                             {legend: {display: false, position: "bottom"}}
                         }
                     />
